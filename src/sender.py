@@ -21,7 +21,10 @@ class WhatsAppSender:
                 EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"][@data-tab="3"]'))
             )
             search_box.clear()
-            search_box.send_keys(contact)
+            for char in contact:
+                search_box.send_keys(char)
+                time.sleep(0.1)
+
             time.sleep(2)  # Pausa curta para exibir resultados de busca
 
             # Seleciona o contato e clica para abrir a conversa
@@ -36,7 +39,7 @@ class WhatsAppSender:
             # Envia a mensagem letra por letra
             for char in message:
                 message_box.send_keys(char)
-                time.sleep(0.05)  # Pequena pausa entre cada caractere para simular digitação humana
+                time.sleep(0.005)  # Pequena pausa entre cada caractere para simular digitação humana
             
             # Pressiona Enter para enviar a mensagem
             message_box.send_keys(Keys.RETURN)
@@ -47,4 +50,5 @@ class WhatsAppSender:
 
     def close(self):
         # Fecha o navegador
+        time.sleep(1)
         self.driver.quit()
