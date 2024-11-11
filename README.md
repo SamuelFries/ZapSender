@@ -13,8 +13,8 @@ Requirements:
 
     Python 3.8 or higher
     Selenium library for automation
-    Google Chrome (or another Selenium-compatible browser)
-    WebDriver for the chosen browser (e.g., chromedriver)
+    Firefox (or another Selenium-compatible browser)
+    WebDriver for the chosen browser (e.g., geckodriver)
 
 How It Works:
 
