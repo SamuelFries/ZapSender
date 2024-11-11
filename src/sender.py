@@ -24,28 +24,48 @@ class WhatsAppSender:
             )
             search_box.clear()
             search_box.send_keys(contact)
-            time.sleep(2)  # Pausa para garantir que o resultado da pesquisa aparece
+            print(f"Searching for contact '{contact}'...")
 
-            # Seleciona o contato correto na lista de resultados
-            contact_element = WebDriverWait(self.driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, f'//span[@title="{contact}"]'))
-            )
-            contact_element.click()
-            time.sleep(2)  # Pausa para garantir que o chat com o contato foi aberto
+            # Pausa para dar tempo do resultado aparecer
+            time.sleep(5)
+
+            # Tenta localizar o contato exato na lista de resultados
+            contact_found = False
+            attempts = 5
+            for _ in range(attempts):
+                try:
+                    contact_element = self.driver.find_element(By.XPATH, f'//span[@title="{contact}"]')
+                    contact_element.click()
+                    contact_found = True
+                    print(f"Contact '{contact}' found and selected.")
+                    break
+                except Exception:
+                    print(f"Contact '{contact}' not found, retrying...")
+                    time.sleep(2)  # Espera antes de tentar novamente
+            
+            if not contact_found:
+                print(f"Could not find contact '{contact}' after {attempts} attempts.")
+                return
 
             # Aguarda a caixa de mensagem estar disponível e envia a mensagem
             message_box = WebDriverWait(self.driver, 20).until(
                 EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"][@data-tab="10"]'))
             )
-            message_box.send_keys(message)
+            
+            # Envia a mensagem letra por letra para evitar problemas de interrupção
+            for char in message:
+                message_box.send_keys(char)
+                time.sleep(0.1)  # Pequeno atraso entre cada caractere
+            
+            # Pressiona Enter para enviar a mensagem
             message_box.send_keys(Keys.RETURN)
             time.sleep(2)  # Pausa para garantir que a mensagem foi enviada
             
             print(f"Message sent to {contact}.")
         except TimeoutException:
-            print(f"Could not find the elements needed to send the message to {contact}.")
+            print("Could not find the elements needed to send the message.")
         except Exception as e:
-            print(f"Could not send message to {contact}. Error: {str(e)}")
+            print(f"Could not send message. Error: {str(e)}")
 
     def close(self):
         # Fecha o navegador
