@@ -12,60 +12,38 @@ class WhatsAppSender:
         self.driver = webdriver.Firefox()
         self.driver.get("https://web.whatsapp.com")
         print("Please scan the QR code to log in.")
-        
-        # Pausa para permitir o login (ajuste o tempo conforme necessário)
-        time.sleep(30)  # Aumente esse valor se precisar de mais tempo para o login
+        time.sleep(30)  # Tempo para o usuário fazer o login (ajuste conforme necessário)
 
     def send_message(self, contact, message):
         try:
-            # Aguarda a barra de pesquisa estar disponível e busca o contato
-            search_box = WebDriverWait(self.driver, 20).until(
+            # Localiza a barra de pesquisa e insere o nome do contato
+            search_box = WebDriverWait(self.driver, 15).until(
                 EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"][@data-tab="3"]'))
             )
             search_box.clear()
             search_box.send_keys(contact)
-            print(f"Searching for contact '{contact}'...")
+            time.sleep(2)  # Pausa curta para exibir resultados de busca
 
-            # Pausa para dar tempo do resultado aparecer
-            time.sleep(5)
+            # Seleciona o contato e clica para abrir a conversa
+            contact_element = self.driver.find_element(By.XPATH, f'//span[@title="{contact}"]')
+            contact_element.click()
 
-            # Tenta localizar o contato exato na lista de resultados
-            contact_found = False
-            attempts = 5
-            for _ in range(attempts):
-                try:
-                    contact_element = self.driver.find_element(By.XPATH, f'//span[@title="{contact}"]')
-                    contact_element.click()
-                    contact_found = True
-                    print(f"Contact '{contact}' found and selected.")
-                    break
-                except Exception:
-                    print(f"Contact '{contact}' not found, retrying...")
-                    time.sleep(2)  # Espera antes de tentar novamente
-            
-            if not contact_found:
-                print(f"Could not find contact '{contact}' after {attempts} attempts.")
-                return
-
-            # Aguarda a caixa de mensagem estar disponível e envia a mensagem
-            message_box = WebDriverWait(self.driver, 20).until(
+            # Localiza a caixa de mensagem
+            message_box = WebDriverWait(self.driver, 15).until(
                 EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"][@data-tab="10"]'))
             )
             
-            # Envia a mensagem letra por letra para evitar problemas de interrupção
+            # Envia a mensagem letra por letra
             for char in message:
                 message_box.send_keys(char)
-                time.sleep(0.1)  # Pequeno atraso entre cada caractere
+                time.sleep(0.05)  # Pequena pausa entre cada caractere para simular digitação humana
             
             # Pressiona Enter para enviar a mensagem
             message_box.send_keys(Keys.RETURN)
-            time.sleep(2)  # Pausa para garantir que a mensagem foi enviada
-            
             print(f"Message sent to {contact}.")
+
         except TimeoutException:
-            print("Could not find the elements needed to send the message.")
-        except Exception as e:
-            print(f"Could not send message. Error: {str(e)}")
+            print(f"Could not find the contact '{contact}' or message box.")
 
     def close(self):
         # Fecha o navegador

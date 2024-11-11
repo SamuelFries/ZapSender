@@ -1,1 +1,1 @@
-Test message ZAPSENDER
+This is a test message from ZapSender! Please don't reply. (mensagem automática)
